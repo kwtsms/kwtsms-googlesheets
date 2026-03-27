@@ -153,6 +153,14 @@ function handleSend(phoneColumn, messageTemplate, senderId, maxRecipients) {
   return SmsSender.sendAll(phoneColumn, messageTemplate, senderId, maxRecipients);
 }
 
+function handleGoToLogsSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('kwtSMS Logs');
+  if (sheet) {
+    ss.setActiveSheet(sheet);
+  }
+}
+
 function handleMenuCheckBalance() {
   if (!Store.isLoggedIn()) { SpreadsheetApp.getUi().alert(t('err_not_logged_in')); return; }
   const result = KwtSmsApi.balance();

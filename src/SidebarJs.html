@@ -211,7 +211,7 @@
         setButtonLoading('loginBtn', false);
         if (result && result.success) {
           state.loggedIn = true;
-          state.balance = { available: result.balance, updatedAt: new Date().toISOString() };
+          state.balance = result.balance;
           state.senderIds = result.senderIds || [];
           state.coverage = result.coverage || [];
           showAlert('success', (state.i18n && state.i18n.strings && state.i18n.strings.login_success) || 'Connected');
@@ -270,7 +270,7 @@
       .withSuccessHandler(function(result) {
         setButtonLoading('reloadBtn', false);
         if (result && result.success) {
-          state.balance = { available: result.balance, updatedAt: new Date().toISOString() };
+          state.balance = result.balance;
           state.senderIds = result.senderIds || state.senderIds;
           state.coverage = result.coverage || state.coverage;
           renderStatus();
@@ -392,6 +392,18 @@
 
         var totalRows = info.totalRows;
         var balance = info.balance || 0;
+
+        // Personalized send warning
+        if (msgText.indexOf('{') !== -1 && totalRows > 200) {
+          var estSeconds = Math.round(totalRows * 1.5);
+          var warnMsg = (strings.send_personalized_warn || 'This message has placeholders and will be sent individually to {count} recipients. Estimated time: {seconds} seconds. Continue?')
+            .replace(/\{count\}/g, String(totalRows))
+            .replace(/\{seconds\}/g, String(estSeconds));
+          if (!confirm(warnMsg)) {
+            setButtonLoading('sendBtn', false);
+            return;
+          }
+        }
 
         // Balance check
         if (balance <= 0 && !(state.settings && state.settings.testMode)) {
@@ -517,6 +529,11 @@
         delete btn._savedNodes;
       }
     }
+  }
+
+  /* === Logs Navigation === */
+  function goToLogsSheet() {
+    google.script.run.handleGoToLogsSheet();
   }
 
   /* === Event Binding === */
