@@ -1,0 +1,22 @@
+{
+  "timeZone": "Asia/Kuwait",
+  "dependencies": {},
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets.currentonly",
+    "https://www.googleapis.com/auth/script.external_request",
+    "https://www.googleapis.com/auth/script.locale"
+  ],
+  "addOns": {
+    "common": {
+      "name": "kwtSMS for Google Sheets",
+      "logoUrl": "https://www.kwtsms.com/images/kwtsms_logo_60.png",
+      "layoutProperties": {
+        "primaryColor": "#FFA200",
+        "secondaryColor": "#79CCF2"
+      }
+    },
+    "sheets": {}
+  }
+}

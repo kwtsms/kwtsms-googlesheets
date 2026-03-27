@@ -1,0 +1,41 @@
+# IDE
+.idea/
+.vscode/
+
+# Claude / AI
+.claude/
+CLAUDE.md
+.worktrees/
+.superpowers/
+napkin.md
+
+# Docs and tests (local only)
+docs/
+tests/
+test/
+
+# Environment
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# clasp auth (contains OAuth tokens)
+.clasprc.json
+
+# Node (if clasp installed locally)
+node_modules/
+
+# Logs
+*.log
+
+# Playwright
+.playwright*
+
+# Docker
+docker/
+
+# Archives
+*.zip
