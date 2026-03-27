@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <?!= include('SidebarCss'); ?>
+</head>
+<body>
+  <div class="sidebar">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header-logo">
+        <img src="https://www.kwtsms.com/images/kwtsms_logo_60.png" alt="kwtSMS">
+        <span>kwtSMS</span>
+      </div>
+      <button id="langToggle" class="lang-toggle" data-i18n="lang_toggle">AR</button>
+    </div>
+
+    <!-- Test Mode Banner -->
+    <div id="testBanner" class="test-banner">
+      <span class="test-banner-icon">&#9888;</span>
+      <span data-i18n="test_mode_banner">TEST MODE</span>
+    </div>
+
+    <!-- Alert Container -->
+    <div class="alert-container">
+      <div id="alertBox" class="alert">
+        <span id="alertIcon" class="alert-icon"></span>
+        <span id="alertText" class="alert-text"></span>
+        <button id="alertClose" class="alert-close">&times;</button>
+      </div>
+    </div>
+
+    <!-- Scrollable Content -->
+    <div class="content">
+
+      <!-- Login Section -->
+      <div id="loginSection" class="section">
+        <div class="section-title" data-i18n="login_title">Connect to kwtSMS</div>
+
+        <div class="form-group">
+          <label class="form-label" for="username" data-i18n="username_label">Username</label>
+          <input
+            id="username"
+            class="form-input"
+            type="text"
+            autocomplete="username"
+            data-i18n-placeholder="username_placeholder"
+            placeholder="API username"
+          >
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password" data-i18n="password_label">Password</label>
+          <input
+            id="password"
+            class="form-input"
+            type="password"
+            autocomplete="current-password"
+            data-i18n-placeholder="password_placeholder"
+            placeholder="API password"
+          >
+        </div>
+
+        <button id="loginBtn" class="btn btn-primary">
+          <span data-i18n="login_button">Login</span>
+        </button>
+      </div>
+
+      <!-- Main Section (logged in) -->
+      <div id="mainSection" class="section">
+
+        <!-- Status Area -->
+        <div class="status-area">
+          <div class="balance-badge">
+            <span class="balance-badge-label" data-i18n="balance_label">Balance</span>
+            <span id="balanceValue" class="balance-badge-value">--</span>
+          </div>
+
+          <div class="status-row">
+            <span class="status-label" data-i18n="senderid_label">Sender ID</span>
+            <span class="status-value">
+              <select id="senderIdSelect" class="form-select"></select>
+            </span>
+          </div>
+
+          <div class="status-row">
+            <span class="status-label" data-i18n="country_code_label">Country Code</span>
+            <span class="status-value">
+              <select id="countryCodeSelect" class="form-select"></select>
+            </span>
+          </div>
+
+          <div class="status-row">
+            <span class="status-label" data-i18n="test_mode_label">Test Mode</span>
+            <span class="status-value">
+              <label class="toggle-switch">
+                <input id="testModeToggle" type="checkbox">
+                <span class="toggle-slider"></span>
+              </label>
+            </span>
+          </div>
+
+          <div class="action-bar">
+            <button id="reloadBtn" class="btn btn-sm btn-outline">
+              <span data-i18n="reload_button">Reload</span>
+            </button>
+            <button id="logoutBtn" class="btn btn-sm btn-outline">
+              <span data-i18n="logout_button">Logout</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Send Area -->
+        <div class="send-area">
+          <div class="section-title" data-i18n="send_title">Send SMS</div>
+
+          <div class="form-group">
+            <label class="form-label" for="phoneColumnSelect" data-i18n="phone_column_label">Phone Column</label>
+            <select id="phoneColumnSelect" class="form-select">
+              <option value="" disabled selected data-i18n="phone_column_placeholder">Select column...</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="messageText" data-i18n="message_label">Message</label>
+            <textarea
+              id="messageText"
+              class="form-textarea"
+              rows="4"
+              data-i18n-placeholder="message_placeholder"
+              placeholder="Type your message. Use {Column Name} for placeholders."
+            ></textarea>
+          </div>
+
+          <!-- Preview -->
+          <div class="preview-section">
+            <div class="preview-title" data-i18n="preview_title">Preview (first 3 rows)</div>
+            <div id="previewCards" class="preview-cards"></div>
+            <div id="previewEmpty" class="preview-empty">...</div>
+          </div>
+
+          <div class="mt-12">
+            <button id="sendBtn" class="btn btn-primary">
+              <span data-i18n="send_button">Send SMS</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Logs Area -->
+        <div class="logs-area">
+          <div class="section-title" data-i18n="logs_title">Logs</div>
+          <a class="logs-link" href="#" onclick="google.script.host.close(); return false;">
+            <span class="logs-link-icon">&#128196;</span>
+            <span data-i18n="logs_view">View kwtSMS Logs sheet</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <?!= include('SidebarJs'); ?>
+</body>
+</html>

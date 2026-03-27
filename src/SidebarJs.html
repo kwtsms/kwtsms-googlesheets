@@ -1,0 +1,581 @@
+<script>
+(function() {
+  'use strict';
+
+  /* === State === */
+  var state = {
+    loggedIn: false,
+    i18n: null,
+    balance: null,
+    senderIds: [],
+    coverage: [],
+    settings: { testMode: false, defaultCountryCode: '965', selectedSenderId: 'KWT-SMS' },
+    columns: []
+  };
+
+  var previewTimer = null;
+  var DEBOUNCE_MS = 500;
+
+  /* === Init === */
+  function init() {
+    google.script.run
+      .withSuccessHandler(function(result) {
+        if (result) {
+          state.loggedIn = result.loggedIn;
+          state.i18n = result.i18n;
+          state.balance = result.balance;
+          state.senderIds = result.senderIds || [];
+          state.coverage = result.coverage || [];
+          state.settings = result.settings || state.settings;
+          state.columns = result.columns || [];
+        }
+        if (state.i18n) applyI18n(state.i18n);
+        renderState();
+      })
+      .withFailureHandler(function(err) {
+        showAlert('error', err && err.message ? err.message : 'Failed to load');
+      })
+      .handleGetState();
+  }
+
+  /* === i18n === */
+  function applyI18n(i18n) {
+    state.i18n = i18n;
+    var root = document.documentElement;
+    root.setAttribute('dir', i18n.rtl ? 'rtl' : 'ltr');
+    root.setAttribute('lang', i18n.lang);
+
+    var strings = i18n.strings || {};
+    var els = document.querySelectorAll('[data-i18n]');
+    for (var i = 0; i < els.length; i++) {
+      var key = els[i].getAttribute('data-i18n');
+      if (strings[key] !== undefined) {
+        els[i].textContent = strings[key];
+      }
+    }
+
+    var placeholders = document.querySelectorAll('[data-i18n-placeholder]');
+    for (var j = 0; j < placeholders.length; j++) {
+      var pKey = placeholders[j].getAttribute('data-i18n-placeholder');
+      if (strings[pKey] !== undefined) {
+        placeholders[j].setAttribute('placeholder', strings[pKey]);
+      }
+    }
+
+    // Update lang toggle text
+    var langBtn = document.getElementById('langToggle');
+    if (langBtn && strings.lang_toggle) {
+      langBtn.textContent = strings.lang_toggle;
+    }
+  }
+
+  function switchLanguage() {
+    var newLang = (state.i18n && state.i18n.lang === 'en') ? 'ar' : 'en';
+    google.script.run
+      .withSuccessHandler(function(result) {
+        if (result && result.i18n) {
+          applyI18n(result.i18n);
+          renderState();
+        }
+      })
+      .withFailureHandler(function(err) {
+        showAlert('error', err && err.message ? err.message : 'Language switch failed');
+      })
+      .handleSwitchLanguage(newLang);
+  }
+
+  /* === Render === */
+  function renderState() {
+    var loginSection = document.getElementById('loginSection');
+    var mainSection = document.getElementById('mainSection');
+
+    if (state.loggedIn) {
+      loginSection.classList.remove('visible');
+      mainSection.classList.add('visible');
+      renderStatus();
+      renderColumnDropdown();
+    } else {
+      mainSection.classList.remove('visible');
+      loginSection.classList.add('visible');
+    }
+
+    // Test mode banner
+    var banner = document.getElementById('testBanner');
+    if (state.loggedIn && state.settings && state.settings.testMode) {
+      banner.classList.add('visible');
+    } else {
+      banner.classList.remove('visible');
+    }
+  }
+
+  function renderStatus() {
+    // Balance
+    var balVal = document.getElementById('balanceValue');
+    if (balVal && state.balance) {
+      balVal.textContent = state.balance.available;
+    } else if (balVal) {
+      balVal.textContent = '--';
+    }
+
+    // Sender ID dropdown
+    var senderSel = document.getElementById('senderIdSelect');
+    if (senderSel) {
+      removeAllChildren(senderSel);
+      var senders = state.senderIds || [];
+      for (var i = 0; i < senders.length; i++) {
+        var opt = document.createElement('option');
+        opt.value = senders[i];
+        opt.textContent = senders[i];
+        if (state.settings.selectedSenderId === senders[i]) opt.selected = true;
+        senderSel.appendChild(opt);
+      }
+      if (senders.length === 0) {
+        var defOpt = document.createElement('option');
+        defOpt.value = 'KWT-SMS';
+        defOpt.textContent = 'KWT-SMS';
+        senderSel.appendChild(defOpt);
+      }
+    }
+
+    // Country code dropdown
+    var ccSel = document.getElementById('countryCodeSelect');
+    if (ccSel) {
+      removeAllChildren(ccSel);
+      var codes = state.coverage || [];
+      for (var c = 0; c < codes.length; c++) {
+        var cOpt = document.createElement('option');
+        cOpt.value = codes[c];
+        cOpt.textContent = '+' + codes[c];
+        if (state.settings.defaultCountryCode === codes[c]) cOpt.selected = true;
+        ccSel.appendChild(cOpt);
+      }
+      if (codes.length === 0) {
+        var defCC = document.createElement('option');
+        defCC.value = '965';
+        defCC.textContent = '+965';
+        ccSel.appendChild(defCC);
+      }
+    }
+
+    // Test mode toggle
+    var testToggle = document.getElementById('testModeToggle');
+    if (testToggle) {
+      testToggle.checked = !!(state.settings && state.settings.testMode);
+    }
+  }
+
+  function renderColumnDropdown() {
+    var colSel = document.getElementById('phoneColumnSelect');
+    if (!colSel) return;
+    removeAllChildren(colSel);
+
+    var strings = (state.i18n && state.i18n.strings) || {};
+
+    var placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = strings.phone_column_placeholder || 'Select column...';
+    placeholder.disabled = true;
+    placeholder.selected = true;
+    colSel.appendChild(placeholder);
+
+    var cols = state.columns || [];
+    for (var i = 0; i < cols.length; i++) {
+      var opt = document.createElement('option');
+      opt.value = cols[i];
+      opt.textContent = cols[i];
+      colSel.appendChild(opt);
+    }
+  }
+
+  /* === DOM Helpers === */
+  function removeAllChildren(el) {
+    while (el.firstChild) {
+      el.removeChild(el.firstChild);
+    }
+  }
+
+  /* === Auth Actions === */
+  function doLogin() {
+    var username = document.getElementById('username').value.trim();
+    var password = document.getElementById('password').value.trim();
+    if (!username || !password) {
+      showAlert('error', (state.i18n && state.i18n.strings && state.i18n.strings.login_failed) || 'Login failed');
+      return;
+    }
+
+    setButtonLoading('loginBtn', true);
+    clearAlert();
+
+    google.script.run
+      .withSuccessHandler(function(result) {
+        setButtonLoading('loginBtn', false);
+        if (result && result.success) {
+          state.loggedIn = true;
+          state.balance = { available: result.balance, updatedAt: new Date().toISOString() };
+          state.senderIds = result.senderIds || [];
+          state.coverage = result.coverage || [];
+          showAlert('success', (state.i18n && state.i18n.strings && state.i18n.strings.login_success) || 'Connected');
+          // Re-fetch full state to get columns
+          google.script.run
+            .withSuccessHandler(function(s) {
+              if (s) {
+                state.columns = s.columns || [];
+                state.settings = s.settings || state.settings;
+              }
+              renderState();
+            })
+            .handleGetState();
+        } else {
+          showAlert('error', (result && result.error) || 'Login failed');
+        }
+      })
+      .withFailureHandler(function(err) {
+        setButtonLoading('loginBtn', false);
+        showAlert('error', err && err.message ? err.message : 'Login failed');
+      })
+      .handleLogin(username, password);
+  }
+
+  function doLogout() {
+    setButtonLoading('logoutBtn', true);
+    google.script.run
+      .withSuccessHandler(function() {
+        state.loggedIn = false;
+        state.balance = null;
+        state.senderIds = [];
+        state.coverage = [];
+        state.columns = [];
+        state.settings = { testMode: false, defaultCountryCode: '965', selectedSenderId: 'KWT-SMS' };
+        setButtonLoading('logoutBtn', false);
+        clearAlert();
+        renderState();
+        // Clear form
+        var u = document.getElementById('username');
+        var p = document.getElementById('password');
+        if (u) u.value = '';
+        if (p) p.value = '';
+      })
+      .withFailureHandler(function(err) {
+        setButtonLoading('logoutBtn', false);
+        showAlert('error', err && err.message ? err.message : 'Logout failed');
+      })
+      .handleLogout();
+  }
+
+  function doReload() {
+    setButtonLoading('reloadBtn', true);
+    clearAlert();
+
+    google.script.run
+      .withSuccessHandler(function(result) {
+        setButtonLoading('reloadBtn', false);
+        if (result && result.success) {
+          state.balance = { available: result.balance, updatedAt: new Date().toISOString() };
+          state.senderIds = result.senderIds || state.senderIds;
+          state.coverage = result.coverage || state.coverage;
+          renderStatus();
+          showAlert('success', (state.i18n && state.i18n.strings && state.i18n.strings.reload_button) || 'Reloaded');
+        } else {
+          showAlert('error', (result && result.error) || 'Reload failed');
+        }
+      })
+      .withFailureHandler(function(err) {
+        setButtonLoading('reloadBtn', false);
+        showAlert('error', err && err.message ? err.message : 'Reload failed');
+      })
+      .handleReload();
+  }
+
+  /* === Settings === */
+  function onSenderIdChange() {
+    var val = document.getElementById('senderIdSelect').value;
+    state.settings.selectedSenderId = val;
+    google.script.run.handleSaveSettings({ selectedSenderId: val });
+  }
+
+  function onCountryCodeChange() {
+    var val = document.getElementById('countryCodeSelect').value;
+    state.settings.defaultCountryCode = val;
+    google.script.run.handleSaveSettings({ defaultCountryCode: val });
+    schedulePreview();
+  }
+
+  function toggleTestMode() {
+    var checked = document.getElementById('testModeToggle').checked;
+    state.settings.testMode = checked;
+    google.script.run.handleSaveSettings({ testMode: checked });
+
+    var banner = document.getElementById('testBanner');
+    if (checked) {
+      banner.classList.add('visible');
+    } else {
+      banner.classList.remove('visible');
+    }
+  }
+
+  /* === Preview === */
+  function schedulePreview() {
+    if (previewTimer) clearTimeout(previewTimer);
+    previewTimer = setTimeout(doPreview, DEBOUNCE_MS);
+  }
+
+  function doPreview() {
+    var phoneCol = document.getElementById('phoneColumnSelect').value;
+    var msgText = document.getElementById('messageText').value;
+    var container = document.getElementById('previewCards');
+    var emptyEl = document.getElementById('previewEmpty');
+
+    if (!phoneCol || !msgText.trim()) {
+      if (container) removeAllChildren(container);
+      if (emptyEl) emptyEl.classList.remove('hidden');
+      return;
+    }
+
+    google.script.run
+      .withSuccessHandler(function(rows) {
+        if (!container) return;
+        removeAllChildren(container);
+        if (!rows || rows.length === 0) {
+          if (emptyEl) emptyEl.classList.remove('hidden');
+          return;
+        }
+        if (emptyEl) emptyEl.classList.add('hidden');
+        for (var i = 0; i < rows.length; i++) {
+          var card = document.createElement('div');
+          card.className = 'preview-card';
+
+          var phone = document.createElement('div');
+          phone.className = 'preview-phone';
+          phone.textContent = rows[i].phone || '';
+
+          var msg = document.createElement('div');
+          msg.className = 'preview-msg';
+          msg.textContent = rows[i].message || '';
+
+          card.appendChild(phone);
+          card.appendChild(msg);
+          container.appendChild(card);
+        }
+      })
+      .withFailureHandler(function() {
+        // Silently fail preview
+      })
+      .handlePreview(phoneCol, msgText);
+  }
+
+  /* === Send === */
+  function doSend() {
+    var phoneCol = document.getElementById('phoneColumnSelect').value;
+    var msgText = document.getElementById('messageText').value;
+    var senderId = document.getElementById('senderIdSelect').value;
+    var strings = (state.i18n && state.i18n.strings) || {};
+
+    if (!phoneCol) {
+      showAlert('error', strings.err_no_phone_column || 'Select a phone column');
+      return;
+    }
+    if (!msgText.trim()) {
+      showAlert('error', strings.err_empty_message || 'Enter a message');
+      return;
+    }
+
+    // Get send info first
+    setButtonLoading('sendBtn', true);
+
+    google.script.run
+      .withSuccessHandler(function(info) {
+        if (!info || info.totalRows === 0) {
+          setButtonLoading('sendBtn', false);
+          showAlert('error', strings.no_valid_recipients || 'No valid recipients');
+          return;
+        }
+
+        var totalRows = info.totalRows;
+        var balance = info.balance || 0;
+
+        // Balance check
+        if (balance <= 0 && !(state.settings && state.settings.testMode)) {
+          setButtonLoading('sendBtn', false);
+          showAlert('error', strings.insufficient_balance || 'Insufficient balance');
+          return;
+        }
+
+        var maxRecipients = 0;
+        var confirmMsg = '';
+
+        if (balance < totalRows && !(state.settings && state.settings.testMode)) {
+          confirmMsg = (strings.send_partial || 'You have {balance} credits but {count} recipients. Send to the first {balance}?')
+            .replace(/\{balance\}/g, String(balance))
+            .replace(/\{count\}/g, String(totalRows));
+          maxRecipients = balance;
+        } else {
+          confirmMsg = (strings.send_confirm || 'Send SMS to {count} recipients?')
+            .replace(/\{count\}/g, String(totalRows));
+        }
+
+        if (!confirm(confirmMsg)) {
+          setButtonLoading('sendBtn', false);
+          return;
+        }
+
+        // Send
+        google.script.run
+          .withSuccessHandler(function(result) {
+            setButtonLoading('sendBtn', false);
+            if (result) {
+              var summary = (strings.send_complete || 'Complete: {sent} sent, {failed} failed, {skipped} skipped. Credits used: {credits}')
+                .replace('{sent}', String(result.sent || 0))
+                .replace('{failed}', String(result.failed || 0))
+                .replace('{skipped}', String(result.skipped || 0))
+                .replace('{credits}', String(result.creditsUsed || 0));
+              var alertType = (result.failed > 0) ? 'error' : 'success';
+              showAlert(alertType, summary);
+
+              // Refresh balance
+              if (result.sent > 0) {
+                google.script.run
+                  .withSuccessHandler(function(s) {
+                    if (s) {
+                      state.balance = s.balance;
+                      renderStatus();
+                    }
+                  })
+                  .handleGetState();
+              }
+            }
+          })
+          .withFailureHandler(function(err) {
+            setButtonLoading('sendBtn', false);
+            showAlert('error', err && err.message ? err.message : 'Send failed');
+          })
+          .handleSend(phoneCol, msgText, senderId, maxRecipients);
+      })
+      .withFailureHandler(function(err) {
+        setButtonLoading('sendBtn', false);
+        showAlert('error', err && err.message ? err.message : 'Failed to get send info');
+      })
+      .handleGetSendInfo(phoneCol);
+  }
+
+  /* === Alerts === */
+  function showAlert(type, message) {
+    var alertEl = document.getElementById('alertBox');
+    var textEl = document.getElementById('alertText');
+    var iconEl = document.getElementById('alertIcon');
+    if (!alertEl || !textEl) return;
+
+    alertEl.className = 'alert alert-' + type + ' visible';
+    textEl.textContent = message || '';
+
+    if (iconEl) {
+      if (type === 'error') iconEl.textContent = '\u26A0';
+      else if (type === 'success') iconEl.textContent = '\u2713';
+      else iconEl.textContent = '\u24D8';
+    }
+
+    // Auto-dismiss success after 5s
+    if (type === 'success') {
+      setTimeout(function() { clearAlert(); }, 5000);
+    }
+  }
+
+  function clearAlert() {
+    var alertEl = document.getElementById('alertBox');
+    if (alertEl) {
+      alertEl.classList.remove('visible');
+    }
+  }
+
+  /* === Button Loading === */
+  function setButtonLoading(btnId, loading) {
+    var btn = document.getElementById(btnId);
+    if (!btn) return;
+
+    if (loading) {
+      btn.disabled = true;
+      // Save original children
+      if (!btn._savedNodes) {
+        btn._savedNodes = [];
+        while (btn.firstChild) {
+          btn._savedNodes.push(btn.removeChild(btn.firstChild));
+        }
+      }
+      var spinner = document.createElement('span');
+      spinner.className = 'spinner';
+      if (btn.classList.contains('btn-outline') || btn.classList.contains('btn-ghost')) {
+        spinner.className = 'spinner spinner-dark';
+      }
+      btn.appendChild(spinner);
+    } else {
+      btn.disabled = false;
+      // Restore original children
+      removeAllChildren(btn);
+      if (btn._savedNodes) {
+        for (var i = 0; i < btn._savedNodes.length; i++) {
+          btn.appendChild(btn._savedNodes[i]);
+        }
+        delete btn._savedNodes;
+      }
+    }
+  }
+
+  /* === Event Binding === */
+  document.addEventListener('DOMContentLoaded', function() {
+    // Language toggle
+    var langBtn = document.getElementById('langToggle');
+    if (langBtn) langBtn.addEventListener('click', switchLanguage);
+
+    // Login
+    var loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) loginBtn.addEventListener('click', doLogin);
+
+    // Password enter key
+    var passField = document.getElementById('password');
+    if (passField) {
+      passField.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); doLogin(); }
+      });
+    }
+
+    // Logout
+    var logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) logoutBtn.addEventListener('click', doLogout);
+
+    // Reload
+    var reloadBtn = document.getElementById('reloadBtn');
+    if (reloadBtn) reloadBtn.addEventListener('click', doReload);
+
+    // Sender ID
+    var senderSel = document.getElementById('senderIdSelect');
+    if (senderSel) senderSel.addEventListener('change', onSenderIdChange);
+
+    // Country code
+    var ccSel = document.getElementById('countryCodeSelect');
+    if (ccSel) ccSel.addEventListener('change', onCountryCodeChange);
+
+    // Test mode
+    var testToggle = document.getElementById('testModeToggle');
+    if (testToggle) testToggle.addEventListener('change', toggleTestMode);
+
+    // Phone column
+    var phoneSel = document.getElementById('phoneColumnSelect');
+    if (phoneSel) phoneSel.addEventListener('change', schedulePreview);
+
+    // Message textarea
+    var msgText = document.getElementById('messageText');
+    if (msgText) msgText.addEventListener('input', schedulePreview);
+
+    // Send
+    var sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) sendBtn.addEventListener('click', doSend);
+
+    // Alert close
+    var alertClose = document.getElementById('alertClose');
+    if (alertClose) alertClose.addEventListener('click', clearAlert);
+
+    // Init
+    init();
+  });
+
+})();
+</script>
