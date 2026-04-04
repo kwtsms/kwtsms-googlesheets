@@ -9,6 +9,9 @@
     "https://www.googleapis.com/auth/script.locale",
     "https://www.googleapis.com/auth/script.container.ui"
   ],
+  "urlFetchWhitelist": [
+    "https://www.kwtsms.com/"
+  ],
   "addOns": {
     "common": {
       "name": "kwtSMS for Google Sheets",
