@@ -86,9 +86,9 @@ const SmsSender = {
       entries.push({ phone: phone, rowIndex: i + 2, rowData: rowData });
     }
 
-    // Normalize + validate + dedup
+    // Normalize + validate + dedup (skip dedup when placeholders produce unique messages per row)
     const phoneEntries = entries.map(function(e) { return { phone: e.phone, rowIndex: e.rowIndex }; });
-    const processed = PhoneUtils.processAll(phoneEntries, settings.defaultCountryCode, coverage);
+    const processed = PhoneUtils.processAll(phoneEntries, settings.defaultCountryCode, coverage, hasPlaceholders);
     const validMap = {};
     processed.valid.forEach(function(v) { validMap[v.rowIndex] = v.phone; });
 

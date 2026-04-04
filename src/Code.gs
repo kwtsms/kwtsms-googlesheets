@@ -12,8 +12,6 @@ function onOpen(e) {
   SpreadsheetApp.getUi()
     .createAddonMenu()
     .addItem('Open Sidebar', 'showSidebar')
-    .addSeparator()
-    .addItem('Check Balance', 'handleMenuCheckBalance')
     .addToUi();
 }
 

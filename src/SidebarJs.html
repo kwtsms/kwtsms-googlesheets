@@ -594,5 +594,21 @@
     init();
   });
 
+  // Expose toggleSection globally for onclick in HTML
+  document.toggleSection = function(id) {
+    var body = document.getElementById(id);
+    if (!body) return;
+    var title = body.previousElementSibling;
+    if (body.classList.contains('collapsed')) {
+      body.classList.remove('collapsed');
+      if (title) title.classList.remove('is-collapsed');
+    } else {
+      body.classList.add('collapsed');
+      if (title) title.classList.add('is-collapsed');
+    }
+  };
+
 })();
+
+function toggleSection(id) { document.toggleSection(id); }
 </script>

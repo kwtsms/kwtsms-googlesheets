@@ -24,15 +24,23 @@ const KwtSmsApi = {
       });
       const code = response.getResponseCode();
       const text = response.getContentText();
-      if (code < 200 || code >= 300) {
-        return { success: false, data: null, error: 'HTTP ' + code + ': ' + text.substring(0, 200) };
-      }
       let data;
-      try { data = JSON.parse(text); }
-      catch (e) { return { success: false, data: null, error: 'Invalid JSON response from API' }; }
-      if (data.result === 'ERROR') {
-        return { success: false, data: data, error: (data.code || '') + ': ' + (data.description || 'Unknown error') };
+      try { data = JSON.parse(text); } catch (e) { data = null; }
+
+      // If we got JSON with an error result, use the API error message regardless of HTTP code
+      if (data && data.result === 'ERROR') {
+        return { success: false, data: data, error: data.description || 'Unknown error' };
       }
+
+      // Non-2xx without parseable API error
+      if (code < 200 || code >= 300) {
+        return { success: false, data: null, error: 'Request failed. Please try again.' };
+      }
+
+      if (!data) {
+        return { success: false, data: null, error: 'Invalid response from API' };
+      }
+
       return { success: true, data: data, error: '' };
     } catch (e) {
       return { success: false, data: null, error: e.message || 'Network error' };

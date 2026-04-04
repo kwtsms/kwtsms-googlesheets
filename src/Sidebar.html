@@ -12,7 +12,6 @@
     <div class="header">
       <div class="header-logo">
         <img src="https://www.kwtsms.com/images/kwtsms_logo_60.png" alt="kwtSMS">
-        <span>kwtSMS</span>
       </div>
       <button id="langToggle" class="lang-toggle" data-i18n="lang_toggle">AR</button>
     </div>
@@ -71,8 +70,12 @@
       <!-- Main Section (logged in) -->
       <div id="mainSection" class="section">
 
-        <!-- Status Area -->
-        <div class="status-area">
+        <!-- Settings Area (collapsible) -->
+        <div class="section-title collapsible" onclick="toggleSection('settingsBody')">
+          <span data-i18n="settings_title">Settings</span>
+          <span class="collapse-icon">&#9650;</span>
+        </div>
+        <div id="settingsBody" class="collapsible-body">
           <div class="balance-badge">
             <span class="balance-badge-label" data-i18n="balance_label">Balance</span>
             <span id="balanceValue" class="balance-badge-value">--</span>
@@ -103,14 +106,15 @@
           </div>
 
           <div class="action-bar">
-            <button id="reloadBtn" class="btn btn-sm btn-outline">
-              <span data-i18n="reload_button">Reload</span>
-            </button>
             <button id="logoutBtn" class="btn btn-sm btn-outline">
               <span data-i18n="logout_button">Logout</span>
             </button>
+            <button id="reloadBtn" class="btn btn-sm btn-outline">
+              <span data-i18n="reload_button">Reload</span>
+            </button>
           </div>
         </div>
+        </div><!-- end collapsible-body -->
 
         <div class="divider"></div>
 

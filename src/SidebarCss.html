@@ -247,9 +247,50 @@ html, body {
   font-family: var(--font-heading);
   font-weight: 600;
   font-size: 14px;
-  color: var(--text);
+  color: #FFFFFF;
+  background: #79CCF2;
+  padding: 8px 12px;
   margin-bottom: 14px;
   letter-spacing: -0.2px;
+  border-radius: var(--radius);
+}
+
+.section-title.collapsible {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+}
+
+.section-title.collapsible:hover {
+  opacity: 0.9;
+}
+
+.collapse-icon {
+  font-size: 10px;
+  transition: transform var(--transition);
+}
+
+.collapsible-body {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  max-height: 500px;
+  opacity: 1;
+}
+
+.collapsible-body.collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+}
+
+.collapsed + .divider {
+  display: none;
+}
+
+.section-title.collapsible.is-collapsed .collapse-icon {
+  transform: rotate(180deg);
 }
 
 /* === Form Elements === */
