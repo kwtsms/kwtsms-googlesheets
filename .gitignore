@@ -22,8 +22,12 @@ test/
 .DS_Store
 Thumbs.db
 
-# clasp auth (contains OAuth tokens)
+# clasp (local config + auth tokens)
 .clasprc.json
+.clasp.json
+
+# MCP config (local)
+.mcp.json
 
 # Node (if clasp installed locally)
 node_modules/
