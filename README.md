@@ -7,6 +7,12 @@
 [![kwtSMS](https://img.shields.io/badge/Powered%20by-kwtSMS-FFA200)](https://www.kwtsms.com)
 [![Arabic](https://img.shields.io/badge/lang-EN%20%7C%20AR-79CCF2)](https://github.com/boxlinknet/kwtsms-googlesheets)
 
+## About kwtSMS
+
+[kwtSMS](https://www.kwtsms.com) is a Kuwait-based SMS gateway providing reliable A2P messaging across the GCC and 80+ countries. Trusted by businesses for bulk SMS, OTP delivery, and transactional notifications with Arabic-first support, competitive regional pricing, and 12 official client libraries.
+
+---
+
 Send bulk SMS from your Google Sheets spreadsheet using [kwtSMS](https://www.kwtsms.com). The first Arabic-native SMS add-on for Google Workspace Marketplace.
 
 ## Features
