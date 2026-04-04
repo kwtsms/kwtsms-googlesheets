@@ -74,7 +74,6 @@ src/
 ## Links
 
 - [kwtSMS Website](https://www.kwtsms.com)
-- [kwtSMS API Documentation](https://www.kwtsms.com/doc/KwtSMS.com_API_Documentation_v41.pdf)
 - [kwtSMS Developers](https://www.kwtsms.com/developers.html)
 - [Support](https://www.kwtsms.com/support.html)
 
