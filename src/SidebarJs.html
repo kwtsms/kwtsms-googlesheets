@@ -586,6 +586,10 @@
     var sendBtn = document.getElementById('sendBtn');
     if (sendBtn) sendBtn.addEventListener('click', doSend);
 
+    // Logs link
+    var logsLink = document.getElementById('logsLink');
+    if (logsLink) logsLink.addEventListener('click', function(e) { e.preventDefault(); goToLogsSheet(); });
+
     // Alert close
     var alertClose = document.getElementById('alertClose');
     if (alertClose) alertClose.addEventListener('click', clearAlert);

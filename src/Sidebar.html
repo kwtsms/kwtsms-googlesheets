@@ -156,13 +156,18 @@
 
         <div class="divider"></div>
 
-        <!-- Logs Area -->
+        <!-- Logs Area (collapsible, collapsed by default) -->
         <div class="logs-area">
-          <div class="section-title" data-i18n="logs_title">Logs</div>
-          <a class="logs-link" href="#" onclick="goToLogsSheet(); return false;">
-            <span class="logs-link-icon">&#128196;</span>
-            <span data-i18n="logs_view">View kwtSMS Logs sheet</span>
-          </a>
+          <div class="section-title collapsible is-collapsed" onclick="toggleSection('logsBody')">
+            <span data-i18n="logs_title">Logs</span>
+            <span class="collapse-icon">&#9650;</span>
+          </div>
+          <div id="logsBody" class="collapsible-body collapsed">
+            <a id="logsLink" class="logs-link" href="#">
+              <span class="logs-link-icon">&#128196;</span>
+              <span data-i18n="logs_view">View kwtSMS Logs sheet</span>
+            </a>
+          </div>
         </div>
 
       </div>
