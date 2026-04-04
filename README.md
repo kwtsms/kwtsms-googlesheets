@@ -79,7 +79,7 @@ src/
 
 ## Security
 
-Report vulnerabilities to: support@kwtsms.com
+To report a vulnerability, please [open an issue](https://github.com/boxlinknet/kwtsms-googlesheets/issues).
 
 ## License
 
