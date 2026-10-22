@@ -2,6 +2,9 @@
 
 ## [1.0.0] - Unreleased
 
+### Docs
+- Test code comments: test=1 messages are queued but not delivered; their credits are held until you delete them from the Sending Queue (previously described as not charged)
+
 ### Added
 - Initial release
 - Bulk SMS sending from Google Sheets

@@ -5,7 +5,8 @@
  * Check Execution Log (View > Logs) for PASS/FAIL results.
  *
  * Unit tests use pure functions only (no API calls, no side effects).
- * API tests require valid credentials saved via Store and use test=1 to avoid charges.
+ * API tests require valid credentials saved via Store and use test=1 so nothing is delivered.
+ * 2026-10-22 15:36 +03: test=1 still holds credits until the queued test is deleted from the Sending Queue; the old "avoid charges" was wrong.
  *
  * Related files: Phone.gs, Message.gs, Api.gs, Store.gs, i18n.gs
  */
@@ -371,7 +372,8 @@ function testApiSendTest() {
   const settings = Store.getSettings();
   const sender = settings.selectedSenderId || 'KWT-SMS';
 
-  // test=1 means the API validates the request but does not deliver or charge credits
+  // 2026-10-22 15:36 +03: corrected. test=1 queues the message without delivering it; its credits are held
+  // until you delete it from the Sending Queue in your kwtsms.com account.
   const result = KwtSmsApi.send('96598765432', 'Test message from kwtSMS Add-on', sender, true);
   assert(result.success === true, 'api send test=1: success', result.error);
   assert(typeof result.msgId === 'string' && result.msgId.length > 0, 'api send test=1: msg-id returned', 'got ' + result.msgId);
