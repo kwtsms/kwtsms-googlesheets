@@ -1,11 +1,11 @@
 # kwtSMS for Google Sheets
 
-[![Version](https://img.shields.io/badge/version-1.0.0-FFA200)](https://github.com/boxlinknet/kwtsms-googlesheets/releases/tag/v1.0.0)
+[![Version](https://img.shields.io/badge/version-1.0.0-FFA200)](https://github.com/kwtsms/kwtsms-googlesheets/releases/tag/v1.0.0)
 [![Google Sheets](https://img.shields.io/badge/Google%20Sheets-Add--on-34A853?logo=google-sheets&logoColor=white)](https://workspace.google.com/marketplace)
 [![Apps Script](https://img.shields.io/badge/Apps%20Script-V8-4285F4?logo=google&logoColor=white)](https://developers.google.com/apps-script)
 [![License](https://img.shields.io/badge/license-Proprietary-lightgrey)](LICENSE)
 [![kwtSMS](https://img.shields.io/badge/Powered%20by-kwtSMS-FFA200)](https://www.kwtsms.com)
-[![Arabic](https://img.shields.io/badge/lang-EN%20%7C%20AR-79CCF2)](https://github.com/boxlinknet/kwtsms-googlesheets)
+[![Arabic](https://img.shields.io/badge/lang-EN%20%7C%20AR-79CCF2)](https://github.com/kwtsms/kwtsms-googlesheets)
 
 Send bulk SMS from your Google Sheets spreadsheet using [kwtSMS](https://www.kwtsms.com). The first Arabic-native SMS add-on for Google Workspace Marketplace.
 
@@ -77,7 +77,7 @@ src/
 
 ## Security
 
-To report a vulnerability, please [open an issue](https://github.com/boxlinknet/kwtsms-googlesheets/issues).
+To report a vulnerability, please [open an issue](https://github.com/kwtsms/kwtsms-googlesheets/issues).
 
 ## License
 
