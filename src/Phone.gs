@@ -1,7 +1,7 @@
 /**
  * Phone.gs - Phone number normalization, validation, and deduplication.
  *
- * Validation rules ported from official kwtSMS-js library (github.com/boxlinknet/kwtsms-js).
+ * Validation rules ported from official kwtSMS-js library (github.com/kwtsms/kwtsms-js).
  * 83 countries with per-country local length and mobile start digit rules.
  *
  * Related files: Send.gs (calls these before sending), Store.gs (coverage data)
