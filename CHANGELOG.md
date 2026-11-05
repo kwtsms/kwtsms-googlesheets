@@ -2,6 +2,9 @@
 
 ## [1.0.0] - Unreleased
 
+### Changed
+- Tests no longer use a sample Kuwait mobile number: mock values use 99912345678 and the live send test reads the KWTSMS_TEST_NUMBER script property
+
 ### Docs
 - Test code comments: test=1 messages are queued but not delivered; their credits are held until you delete them from the Sending Queue (previously described as not charged)
 

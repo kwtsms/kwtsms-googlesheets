@@ -30,59 +30,75 @@ function assert(condition, testName, detail) {
   }
 }
 
+/**
+ * Test number for tests that need real Kuwait digits, from the script property
+ * KWTSMS_TEST_NUMBER (965XXXXXXXX, Project Settings > Script Properties).
+ * Returns null when unset or malformed; the caller logs SKIP. The value is never logged.
+ *
+ * 2026-11-05 11:27 +03: replaces a hard-coded sample Kuwait mobile (sample numbers belong to
+ * real people). Mock-only values use 99912345678 (country code 999 is unassigned, nobody
+ * holds it) with '999' added to the coverage fixtures as test data only, int-testnumber.
+ *
+ * @returns {string|null}
+ */
+function testNumber_() {
+  const number = PropertiesService.getScriptProperties().getProperty('KWTSMS_TEST_NUMBER') || '';
+  return /^965[4569]\d{7}$/.test(number) ? number : null;
+}
+
 // ---------------------------------------------------------------------------
 // Phone tests
 // ---------------------------------------------------------------------------
 
 function testPhoneNormalization() {
   Logger.log('--- testPhoneNormalization ---');
-  const coverage = ['965', '966', '971'];
+  const coverage = ['965', '966', '971', '999'];
 
   // Strip leading +
   assert(
-    PhoneUtils.normalize('+96598765432', '965', coverage) === '96598765432',
+    PhoneUtils.normalize('+99912345678', '999', coverage) === '99912345678',
     'normalize: strip leading +'
   );
 
   // Strip leading 00
   assert(
-    PhoneUtils.normalize('0096598765432', '965', coverage) === '96598765432',
+    PhoneUtils.normalize('0099912345678', '999', coverage) === '99912345678',
     'normalize: strip leading 00'
   );
 
   // Strip spaces
   assert(
-    PhoneUtils.normalize('965 9876 5432', '965', coverage) === '96598765432',
+    PhoneUtils.normalize('999 1234 5678', '999', coverage) === '99912345678',
     'normalize: strip spaces'
   );
 
   // Strip dashes
   assert(
-    PhoneUtils.normalize('965-9876-5432', '965', coverage) === '96598765432',
+    PhoneUtils.normalize('999-1234-5678', '999', coverage) === '99912345678',
     'normalize: strip dashes'
   );
 
   // Arabic-Indic digits (U+0660-U+0669)
   assert(
-    PhoneUtils.normalize('\u0669\u0666\u0665\u0669\u0668\u0667\u0666\u0665\u0664\u0663\u0662', '965', coverage) === '96598765432',
+    PhoneUtils.normalize('\u0669\u0669\u0669\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668', '999', coverage) === '99912345678',
     'normalize: Arabic-Indic digits'
   );
 
   // Extended Arabic-Indic digits (U+06F0-U+06F9)
   assert(
-    PhoneUtils.normalize('\u06F9\u06F6\u06F5\u06F9\u06F8\u06F7\u06F6\u06F5\u06F4\u06F3\u06F2', '965', coverage) === '96598765432',
+    PhoneUtils.normalize('\u06F9\u06F9\u06F9\u06F1\u06F2\u06F3\u06F4\u06F5\u06F6\u06F7\u06F8', '999', coverage) === '99912345678',
     'normalize: extended Arabic digits'
   );
 
   // Country code prepend when not present
   assert(
-    PhoneUtils.normalize('98765432', '965', coverage) === '96598765432',
+    PhoneUtils.normalize('12345678', '999', coverage) === '99912345678',
     'normalize: prepend country code'
   );
 
   // Number already has country code, should not double-prepend
   assert(
-    PhoneUtils.normalize('96598765432', '965', coverage) === '96598765432',
+    PhoneUtils.normalize('99912345678', '999', coverage) === '99912345678',
     'normalize: no double-prepend when country code present'
   );
 
@@ -103,9 +119,18 @@ function testPhoneValidation() {
   Logger.log('--- testPhoneValidation ---');
   const coverage = ['965', '966', '971'];
 
-  // Valid Kuwait number
-  const kwResult = PhoneUtils.validate('96598765432', coverage);
-  assert(kwResult.valid === true, 'validate: valid Kuwait number');
+  // Valid Kuwait number (needs real Kuwait digits: the KWTSMS_TEST_NUMBER script property)
+  const kwNumber = testNumber_();
+  if (kwNumber) {
+    const kwResult = PhoneUtils.validate(kwNumber, coverage);
+    assert(kwResult.valid === true, 'validate: valid Kuwait number');
+  } else {
+    Logger.log('SKIP: validate: valid Kuwait number (KWTSMS_TEST_NUMBER script property unset or not 965XXXXXXXX)');
+  }
+
+  // Number with no country rule passes generic validation when covered
+  const mockResult = PhoneUtils.validate('99912345678', coverage.concat(['999']));
+  assert(mockResult.valid === true, 'validate: covered number with no country rule');
 
   // Valid Saudi number
   const saResult = PhoneUtils.validate('966512345678', coverage);
@@ -140,7 +165,7 @@ function testPhoneValidation() {
   );
 
   // Non-digit characters (should already be stripped by normalize, but validate rejects raw)
-  const nonDigitResult = PhoneUtils.validate('9659876ABCD', coverage);
+  const nonDigitResult = PhoneUtils.validate('9651234ABCD', coverage);
   assert(
     nonDigitResult.valid === false,
     'validate: non-digit characters rejected'
@@ -149,15 +174,15 @@ function testPhoneValidation() {
 
 function testPhoneDedup() {
   Logger.log('--- testPhoneDedup ---');
-  const coverage = ['965', '966', '971'];
+  const coverage = ['965', '966', '971', '999'];
 
   // Two identical entries after normalization: second is skipped
   const entries = [
-    { phone: '+96598765432', rowIndex: 2 },
-    { phone: '96598765432',  rowIndex: 3 },
+    { phone: '+99912345678', rowIndex: 2 },
+    { phone: '99912345678',  rowIndex: 3 },
     { phone: '966512345678', rowIndex: 4 }
   ];
-  const result = PhoneUtils.processAll(entries, '965', coverage);
+  const result = PhoneUtils.processAll(entries, '999', coverage);
 
   assert(result.valid.length === 2, 'dedup: two unique numbers kept', 'got ' + result.valid.length);
   assert(result.skipped.length === 1, 'dedup: one duplicate skipped', 'got ' + result.skipped.length);
@@ -374,7 +399,12 @@ function testApiSendTest() {
 
   // 2026-10-22 15:36 +03: corrected. test=1 queues the message without delivering it; its credits are held
   // until you delete it from the Sending Queue in your kwtsms.com account.
-  const result = KwtSmsApi.send('96598765432', 'Test message from kwtSMS Add-on', sender, true);
+  const number = testNumber_();
+  if (!number) {
+    Logger.log('SKIP: api send test=1 (KWTSMS_TEST_NUMBER script property unset or not 965XXXXXXXX)');
+    return;
+  }
+  const result = KwtSmsApi.send(number, 'Test message from kwtSMS Add-on', sender, true);
   assert(result.success === true, 'api send test=1: success', result.error);
   assert(typeof result.msgId === 'string' && result.msgId.length > 0, 'api send test=1: msg-id returned', 'got ' + result.msgId);
 }
