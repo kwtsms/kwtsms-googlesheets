@@ -366,6 +366,16 @@ function testI18n() {
   );
 }
 
+// 2026-11-05 15:07 +03: offline check of the integration token sent with every API call, #939.
+function testClientToken() {
+  Logger.log('--- testClientToken ---');
+  assert(
+    /^kwtsms-sheets\/[0-9][0-9A-Za-z.+-]*$/.test(CLIENT_TOKEN),
+    'api: client token is kwtsms-sheets/<version>',
+    'got: ' + CLIENT_TOKEN
+  );
+}
+
 // ---------------------------------------------------------------------------
 // API tests (require saved credentials, use test mode)
 // ---------------------------------------------------------------------------
@@ -428,6 +438,7 @@ function runAllTests() {
   testMessageClean();
   testMessagePlaceholders();
   testI18n();
+  testClientToken(); // 2026-11-05 15:07 +03: #939
 
   if (Store.isLoggedIn()) {
     Logger.log('--- API tests (credentials found) ---');

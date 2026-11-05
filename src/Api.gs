@@ -10,6 +10,11 @@
 
 const API_BASE = 'https://www.kwtsms.com/API';
 
+// 2026-11-05 15:07 +03: integration name and version on every kwtSMS call (no personal data), so kwtSMS can
+// count accounts per integration. Sent as the "client" body field because Apps Script may
+// replace the User-Agent, and as the User-Agent too. Keep equal to the CHANGELOG release, #939.
+const CLIENT_TOKEN = 'kwtsms-sheets/1.0.0';
+
 const KwtSmsApi = {
 
   _request(endpoint, payload) {
@@ -18,8 +23,9 @@ const KwtSmsApi = {
       const response = UrlFetchApp.fetch(url, {
         method: 'post',
         contentType: 'application/json',
-        headers: { 'Accept': 'application/json' },
-        payload: JSON.stringify(payload),
+        // 2026-11-05 15:07 +03: client token in the header and the body, #939.
+        headers: { 'Accept': 'application/json', 'User-Agent': CLIENT_TOKEN },
+        payload: JSON.stringify(Object.assign({}, payload, { client: CLIENT_TOKEN })),
         muteHttpExceptions: true
       });
       const code = response.getResponseCode();
