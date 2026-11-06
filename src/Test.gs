@@ -281,7 +281,7 @@ function testMessagePlaceholders() {
     'resolve: no placeholders unchanged'
   );
 
-  // hasPlaceholders: true when template contains {…}
+  // hasPlaceholders: true when template contains {...}
   assert(
     MessageUtils.hasPlaceholders('Hello {Name}') === true,
     'hasPlaceholders: true for {Name}'
