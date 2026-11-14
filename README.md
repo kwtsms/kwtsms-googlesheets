@@ -17,7 +17,7 @@ Send bulk SMS from your Google Sheets spreadsheet using [kwtSMS](https://www.kwt
 
 - **Bulk SMS** from sheet rows with `{Column Name}` placeholders
 - **Arabic and English** UI with full RTL support
-- **Phone validation** for 83+ countries with per-country rules
+- **Phone validation** for 80+ countries with per-country rules
 - **Phone normalization** (Arabic digits, country code prepend, format cleanup)
 - **Message cleaning** (emoji, hidden Unicode, HTML auto-stripped)
 - **Smart batching** (200 numbers/call, groups identical messages)
@@ -57,7 +57,7 @@ clasp open
 src/
   Code.gs          Entry points, menu, sidebar handlers
   Api.gs           kwtSMS REST API client
-  Phone.gs         Phone validation (83+ countries)
+  Phone.gs         Phone validation (80+ countries)
   Message.gs       Message cleaning + placeholders
   Send.gs          Bulk send with smart batching
   Logs.gs          Log sheet tab management
