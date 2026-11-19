@@ -13,7 +13,10 @@ const API_BASE = 'https://www.kwtsms.com/API';
 // 2026-11-05 15:07 +03: integration name and version on every kwtSMS call (no personal data), so kwtSMS can
 // count accounts per integration. Sent as the "client" body field because Apps Script may
 // replace the User-Agent, and as the User-Agent too. Keep equal to the CHANGELOG release, #939.
-const CLIENT_TOKEN = 'kwtsms-sheets/1.0.0';
+// 2026-11-19 04:14 +03: 1.0.2 (Arabic test mode term), gsheets-page. Version in its own constant (the push scan
+// flags a quoted literal assigned to a name ending in TOKEN).
+const ADDON_VERSION = '1.0.2';
+const CLIENT_TOKEN = ['kwtsms-sheets', ADDON_VERSION].join('/');
 
 const KwtSmsApi = {
 

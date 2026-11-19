@@ -1,6 +1,6 @@
 # kwtSMS for Google Sheets
 
-[![Version](https://img.shields.io/badge/version-1.0.0-FFA200)](https://github.com/kwtsms/kwtsms-googlesheets/releases/tag/v1.0.0)
+[![Version](https://img.shields.io/badge/version-1.0.2-FFA200)](https://github.com/kwtsms/kwtsms-googlesheets/releases/tag/v1.0.2)
 [![Google Sheets](https://img.shields.io/badge/Google%20Sheets-Add--on-34A853?logo=google-sheets&logoColor=white)](https://workspace.google.com/marketplace)
 [![Apps Script](https://img.shields.io/badge/Apps%20Script-V8-4285F4?logo=google&logoColor=white)](https://developers.google.com/apps-script)
 [![License](https://img.shields.io/badge/license-Proprietary-lightgrey)](LICENSE)
