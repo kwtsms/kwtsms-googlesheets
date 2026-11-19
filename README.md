@@ -9,6 +9,8 @@
 
 Send bulk SMS from your Google Sheets spreadsheet using [kwtSMS](https://www.kwtsms.com). The first Arabic-native SMS add-on for Google Workspace Marketplace.
 
+Setup guide and use cases: [kwtsms.com/integrations/google-sheets.html](https://www.kwtsms.com/integrations/google-sheets.html)
+
 ## About kwtSMS
 
 [kwtSMS](https://www.kwtsms.com) is a Kuwait-based SMS gateway providing reliable A2P messaging across the GCC and 80+ countries. Trusted by businesses for bulk SMS, OTP delivery, and transactional notifications with Arabic-first support, competitive regional pricing, and 12 official client libraries.
