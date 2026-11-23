@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/readme-header-dark.png">
+  <img alt="kwtSMS for Google Sheets" src=".github/assets/readme-header-light.png">
+</picture>
+
 # kwtSMS for Google Sheets
 
 [![Version](https://img.shields.io/badge/version-1.0.2-FFA200)](https://github.com/kwtsms/kwtsms-googlesheets/releases/tag/v1.0.2)
